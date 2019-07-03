@@ -95,7 +95,7 @@ int** initializer(bool fileRead, int** map) {
 }
 
 int** fileRead(string inputfile, int** map) {
-  string concatInputfile = "Input/" + inputfile;
+  string concatInputfile = inputfile;
   if(concatInputfile.find('.') == string::npos) concatInputfile += ".txt";
   ifstream input(concatInputfile);
   if(input.is_open()) {
