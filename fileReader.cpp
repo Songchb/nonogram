@@ -2,6 +2,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>  // parse input file
+#include <vector>
 
 using namespace std;
 
@@ -24,9 +25,15 @@ public:
       if(inputFileName.find('.') == string::npos)
         inputFileName += ".txt";
       input.open(inputFileName);
+      /* if there is no input file, search directory "./Input" */
       if(!input.is_open()) {
-        cout << "file open error : " << inputFileName << "\n";
-        exit(1);
+        inputFileName = "./Input/" + inputFileName;
+        input.open(inputFileName);
+        if(!input.is_open()) {
+
+          cout << "file open error : " << inputFileName << "\n";
+          exit(1);
+        }
       }
       cin.rdbuf(input.rdbuf());
     }
@@ -63,7 +70,7 @@ public:
     cout << "row\n";
     for(int i=0; i<colSize; ++i) {
       cout << rowParam[i][0] << " : ";
-      for(int j = 1; j<row[i].size(); ++j) {
+      for(int j = 1; j<rowParam[i].size(); ++j) {
         cout << rowParam[i][j] << " ";
       }cout << "\n";
     }
@@ -71,7 +78,7 @@ public:
     cout << "col\n";
     for(int i=0; i<rowSize; ++i) {
       cout << colParam[i][0] << " : ";
-      for(int j = 1; j<col[i].size(); ++j) {
+      for(int j = 1; j<colParam[i].size(); ++j) {
         cout << colParam[i][j] << " ";
       }cout << "\n";
     }

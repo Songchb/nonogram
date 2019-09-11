@@ -9,14 +9,13 @@
 
 using namespace std;
 
-int ROW_SIZE, COL_SIZE; // length of row & column
-bool GRID = false;
-bool PARAM = true;
-bool BRUTEFORCE = false;
-vector<vector<int>> row; // parameters as global variable
-vector<vector<int>> col;
-
-wchar_t direc[] = L"→↓←↑";
+extern int ROW_SIZE, COL_SIZE; // length of row & column
+extern bool GRID;
+extern bool PARAM;
+extern bool BRUTEFORCE;
+extern vector<vector<int>> row; // parameters as global variable
+extern vector<vector<int>> col;
+extern wchar_t direc[];
 
 void ClearScreen();
 
