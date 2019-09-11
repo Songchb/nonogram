@@ -1,144 +1,25 @@
+#include "nemo.h"
 #include <iostream>
-#include <fstream>
-#include <sstream>  // parse input file
 #include <vector>
-#include <utility> // pair
-#include <string>
-#include <windows.h>
-#include <time.h> // calculate execution time
-#include <algorithm>  // min, sort, reverse
+#include <map>
 #include <iomanip>
+#include <algorithm>  // min, sort, reverse
 
-using namespace std;
+// using namespace std;
+// extern int ROW_SIZE, COL_SIZE; // length of row & column
+// extern bool GRID;
+// extern bool PARAM;
+// extern bool BRUTEFORCE;
+// extern vector<vector<int> > row; // parameters as global variable
+// extern vector<vector<int> > col;
+// extern wchar_t direc[];
 
-int ROW_SIZE, COL_SIZE; // 가로길이 세로길이
-bool GRID = false;
-bool PARAM = true;
-bool BRUTEFORCE = false;
-vector<vector<int> > row;
-vector<vector<int> > col;
 
-bool sortByBlockCount(const pair<int, int> &a, const pair<int, int> &b) { return a.second - a.first > b.second - b.first; }
-
-wchar_t direc[] = L"→↓←↑";
-
-void ClearScreen() {
-  HANDLE                     hStdOut;
-  CONSOLE_SCREEN_BUFFER_INFO csbi;
-  DWORD                      count;
-  DWORD                      cellCount;
-  COORD                      homeCoords = { 0, 0 };
-
-  hStdOut = GetStdHandle( STD_OUTPUT_HANDLE );
-  if (hStdOut == INVALID_HANDLE_VALUE) return;
-
-  /* Get the number of cells in the current buffer */
-  if (!GetConsoleScreenBufferInfo( hStdOut, &csbi )) return;
-  cellCount = csbi.dwSize.X *csbi.dwSize.Y;
-
-  /* Fill the entire buffer with spaces */
-  if (!FillConsoleOutputCharacter(
-    hStdOut,
-    (TCHAR) ' ',
-    cellCount,
-    homeCoords,
-    &count
-    )) return;
-
-  /* Fill the entire buffer with the current colors and attributes */
-  if (!FillConsoleOutputAttribute(
-    hStdOut,
-    csbi.wAttributes,
-    cellCount,
-    homeCoords,
-    &count
-    )) return;
-
-  /* Move the cursor home */
-  SetConsoleCursorPosition( hStdOut, homeCoords );
+bool sortByBlockCount(const pair<int, int> &a, const pair<int, int> &b) {
+  return a.second - a.first > b.second - b.first;
 }
 
-
-class FileReader {
-private:
-  ifstream input;
-  string tempLine;
-  bool is_std;
-public:
-  FileReader() {
-    is_std = true;
-  }
-
-  fileRead(string inputFileName) {
-    if(inputFileName.compare("std") != 0) { // file input
-      is_std = false;
-      if(inputFileName.find('.') == string::npos)
-        inputFileName += ".txt";
-      input.open(inputFileName);
-      if(!input.is_open()) {
-        cout << "file open error : " << inputFileName << "\n";
-        exit(1);
-      }
-      cin.rdbuf(input.rdbuf());
-    }
-    if(is_std)
-      cout << "row size, column size (without comma, just space) : ";
-    cin >> ROW_SIZE >> COL_SIZE; // 가로길이 세로길이
-    cin.ignore(1000, '\n');
-    for(int i = 0; i < ROW_SIZE + COL_SIZE; ++i) {
-      if(is_std && i == 0) cout << "****** row ******\n";
-      if(is_std && i == COL_SIZE) cout << "****** col ******\n";
-      getline(cin, tempLine);
-      stringstream ss(tempLine);
-      string word;
-      int count = 0;
-      vector<int> tempVector;
-      tempVector.push_back(count);
-      while(ss >> word) {
-        tempVector.push_back(atoi(word.c_str()));
-        tempVector[0]++;
-      }
-      if(i < COL_SIZE)
-        row.push_back(tempVector);
-      else
-        col.push_back(tempVector);
-    }
-    if(col.size() != ROW_SIZE) {
-      cout << "input file is invalid!\n";
-      exit(1);
-    }
-  }
-
-  printRowCol() {
-    cout << ROW_SIZE << " " << COL_SIZE << "\n";
-    cout << "row\n";
-    for(int i=0; i<COL_SIZE; ++i) {
-      cout << row[i][0] << " : ";
-      for(int j = 1; j<row[i].size(); ++j) {
-        cout << row[i][j] << " ";
-      }cout << "\n";
-    }
-
-    cout << "col\n";
-    for(int i=0; i<ROW_SIZE; ++i) {
-      cout << col[i][0] << " : ";
-      for(int j = 1; j<col[i].size(); ++j) {
-        cout << col[i][j] << " ";
-      }cout << "\n";
-    }
-  }
-};
-
-class Nemo {
-public:
-  vector<vector<int> > map;
-  vector<vector<int> > prevMap;
-  bool bfFound;
-  vector<vector<vector<int>>> mapCombVector;
-  vector<vector<int>> rowCombVector;
-  vector<int> mapState;
-
-  Nemo() {
+  Nemo::Nemo() {
     cout << "Nemo object initialize!" << endl;
     bfFound = false;
     for(int i=0; i<COL_SIZE; ++i) {
@@ -150,7 +31,7 @@ public:
     }
   }
 
-  void run() {
+  void Nemo::run() {
     for(int step = 0; step < ROW_SIZE + COL_SIZE; step++) {
       if(step < COL_SIZE)
         initialFill(row, step, true);
@@ -220,7 +101,7 @@ public:
   }
 
 /* 블록이 중복되어 확정되는 자리, parameter가 0인 곳, 자리가 딱 맞는 곳 */
-  void initialFill(vector<vector<int> > rowcolInfo, int step, bool is_row) {
+  void Nemo::initialFill(vector<vector<int> > rowcolInfo, int step, bool is_row) {
     if(rowcolInfo[step][1] == 0) {
       if(is_row) {
         for(int i=0; i<ROW_SIZE; ++i)
@@ -258,7 +139,7 @@ public:
 
 /* 전체 param.가 이미 다 칠해졌거나 (빈칸확정) */
 /* 칠한 칸과 불확정칸의 합이 전체 param과 같은 경우 (칠할 칸 확정) */
-  vector<int> rules1(vector<int> rowcolInfo, vector<int> line) {
+  vector<int> Nemo::rules1(vector<int> rowcolInfo, vector<int> line) {
     vector<int> result = line;
 
     // 이미 모든 블록을 칠했으면 (paramSum과 비교해서) 빈칸확정
@@ -311,7 +192,7 @@ public:
   }
 
 /* 가장자리라서 확실해지는 자리 */
-  vector<int> rules2(vector<int> rowcolInfo, vector<int> line, bool backward) {
+  vector<int> Nemo::rules2(vector<int> rowcolInfo, vector<int> line, bool backward) {
     vector<int> result = line;
     if(!backward) {
       result = rules2_backNforth(rowcolInfo, result);
@@ -330,7 +211,7 @@ public:
     }
   }
 
-  vector<int> rules2_backNforth(vector<int> rowcolInfo, vector<int> line) {
+  vector<int> Nemo::rules2_backNforth(vector<int> rowcolInfo, vector<int> line) {
     int start = -1; // block이 시작하는 위치
     int blank = -1; // blank가 시작하는 위치
     int blockCount = 1;   // 첫번째 블록
@@ -685,7 +566,7 @@ public:
   }
 
 /* 위치를 통해, 순서를 통해 확정할 수 있는 블록은 그 앞뒤로 빈칸 확정? */
-  vector<int> rules3(vector<int> rowcolInfo, vector<int> line) {
+  vector<int> Nemo::rules3(vector<int> rowcolInfo, vector<int> line) {
     vector<int> result = line;
     vector<int> paramBlocks = rowcolInfo;
     vector<pair<int, int>> countedBlocks;
@@ -767,7 +648,7 @@ public:
 // 4 ✉✉✉⬜⬜⬜⬜⬜⬜⬜ → ✉✉✉⬜⬜⬜⬛⬜⬜⬜
 // 2 2 4 7 3 ⬛⬛✉⬜⬜⬜⬜⬜⬛⬜⬜✉⬜⬜⬜⬜⬜⬜⬜⬜⬜✉⬜⬜⬜ → ⬛⬛✉⬜⬛⬜⬜⬛⬛⬛⬜✉⬜⬜⬛⬛⬛⬛⬛⬜⬜✉⬛⬛⬛
 
-  vector<int> rules4(vector<int> rowcolInfo, vector<int> line) {
+  vector<int> Nemo::rules4(vector<int> rowcolInfo, vector<int> line) {
     vector<int> result = line;
     // 전체 line이 확정빈칸으로 분리되어 있어야 한다
     // ★ 분리된 empty space 중 min(param)보다 작은 것이 있다면 확정빈칸처리 한다
@@ -828,8 +709,7 @@ public:
     return result;
   }
 
-
-  void bruteforce(vector< vector<int> > candiMap, int step, bool initialize) {
+  void Nemo::bruteforce(vector< vector<int> > candiMap, int step, bool initialize) {
     if(bfFound) {
       return;
     }
@@ -856,7 +736,7 @@ public:
     }
   }
 
-  void generateCombination(int step, int elementCount, vector<int> curVector, int position, bool previousCellPlaced) {
+  void Nemo::generateCombination(int step, int elementCount, vector<int> curVector, int position, bool previousCellPlaced) {
     if(position >= ROW_SIZE) { // end of the list
       /* count of the block of list is not matched with elementCount */
       if(row[step][0] == elementCount)
@@ -888,7 +768,7 @@ public:
     }
   }
 
-  bool colCheckForBF(vector<vector<int>> candiMap, int rowStep) {
+  bool Nemo::colCheckForBF(vector<vector<int>> candiMap, int rowStep) {
     /* 왼쪽부터 오른쪽으로 각 column을 돌면서 확인 */
     for(int i = 0; i < ROW_SIZE; ++i) {
       bool blockStart = false;
@@ -918,7 +798,7 @@ public:
     return true;
   }
 
-  void printMap(vector<vector<int>> targetMap, int rowStep) {
+  void Nemo::printMap(vector<vector<int>> targetMap, int rowStep) {
     /* initialize */
     int maxLengthRow = 0;
     int maxCountCol = 0;
@@ -987,7 +867,7 @@ public:
     }
   }
 
-  void printLine(vector<int> line) {
+  void Nemo::printLine(vector<int> line) {
     for(int i = 0; i < line.size(); ++i) {
       if(line[i] == 1)        wprintf(L"■");
       else if(line[i] == -1)  wprintf(L"▨");
@@ -995,154 +875,3 @@ public:
     }
     cout << " size : " << line.size() << "\n";
   }
-
-};
-
-int main(int argc, char* argv[]) {
-  clock_t start, end;
-  FileReader InputReader;
-
-  if(argc == 1 || argv[1][0] == '-')  // 가장 첫 아규먼트가 파일 이름이 아니라 옵션이면
-    InputReader.fileRead("std");      // 퍼즐을 직접 입력 받는다
-  else
-    InputReader.fileRead(argv[1]);    // 파일로 입력 받는다
-  for(int i=2; i<argc; ++i) {
-    if(strcmp(argv[i], "-np") == 0 || strcmp(argv[i], "--no-parameters") == 0)
-      PARAM = false;
-    else if(strcmp(argv[i], "-g") == 0 || strcmp(argv[i], "--grid") == 0)
-      GRID = true;
-    else if(strcmp(argv[i], "-bf") == 0 || strcmp(argv[i], "--brute-force") == 0)
-      BRUTEFORCE = true;
-    else
-      cout << "wrong option format : " << argv[i] << "\n";
-  }
-
-  cout << "\nfile read done\n";
-  setlocale(LC_ALL, "korean");
-  // InputReader.printRowCol();
-
-  start = clock();
-  Nemo nemo;
-  // nemo.printMap(nemo.map, COL_SIZE);
-
-/*
-  int list1[30] = {
-    -1, 1, 1, -1, 1,
-    1, -1, -1, 1, 0,
-    1, 0, 1, 1, 1,
-    1, 1, 0, 0, 0,
-    0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0
-  };
-
-  int list2[30] = {
-    0, 0, -1, 1, 1,
-    1, 1, 1, 1, 1,
-    -1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1,
-    1, 1, -1, 1, -1,
-    -1, 0, 0, 0, 0
-  };
-
-  int list3[30] = {
-    0, 0, 0, 0, 0,
-    -1, 1, 0, 1, 1,
-    1, 1, 1, 1, 1,
-    1, 0, 0, -1, 1,
-    1, 0, 1, 1, 1,
-    1, 1, 0, 0, 0
-  };
-
-  int list4[30] = {
-    0, 0, 0, 0, -1,
-    -1, 0, 0, 0, 0,
-    0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0,
-    -1, 0, -1, 0, 1,
-    0, 0, 0, 0, 0
-  };
-
-  int list5[25] = {
-    0, 0, 0, -1,
-    0, 0, 0, 0, 0,
-    -1, 0, 0, 0, 1,
-    0, 0, -1, 0, 0,
-    0, 0, 0, 0, 0, 0
-  };
-
-  int list6[30] = {
-    -1, 1, 1, 1, 1,
-    1, 1, 1, -1, 0,
-    0, 0, 1, 1, -1,
-    0, 0, 0, 0, 0,
-    0, 0, 0, 0, -1,
-    -1, 1, 1, -1, 1
-  };
-
-  int list7[30] = {
-    -1, -1, -1, 1, 1,
-    1, 1, 1, 1, 1,
-    1, -1, -1, 1, 1,
-    1, 1, 1, 1, 1,
-    1, 1, 1, 1, -1,
-    1, 0, 0, 0, 0
-  };
-
-  vector<int> temp;
-  for(int i = 0; i < 30; ++i)
-    temp.push_back(list7[i]);
-
-  int listRow1[5] = {
-    4, 2, 3, 9, 2
-  };
-  int listRow2[5] = {
-    4, 8, 11, 2, 1
-  };
-  int listRow3[5] = {
-    4, 1, 2, 11, 8
-  };
-
-  int listRow4[5] = {
-    4, 2, 2, 10, 4
-  };
-
-  int listRow5[4] = {
-    3, 3, 6, 4
-  };
-
-  int listRow6[7] = {
-    6, 7, 2, 2, 2, 2, 1
-  };
-
-  int listRow7[5] = {
-    4, 8, 11, 2, 1
-  };
-
-
-  vector<int> tempRow;
-  for(int i=0; i<5; ++i)
-    tempRow.push_back(listRow7[i]);
-
-  for(int i = 1; i <= tempRow[0]; ++i)
-    cout << tempRow[i] << " ";
-  nemo.printLine(temp);
-
-  // temp = nemo.rules1(tempRow, temp);
-  temp = nemo.rules2(tempRow, temp, false);
-  // temp = nemo.rules4(tempRow, temp);
-
-  for(int i = 1; i <= tempRow[0]; ++i)
-    cout << tempRow[i] << " ";
-  nemo.printLine(temp);
-
-*/
-  if(BRUTEFORCE)  nemo.bruteforce(nemo.map, 0, true);
-  else            nemo.run();
-  // cout << "\n";
-  end = clock();
-  nemo.printMap(nemo.map, COL_SIZE);
-
-  cout << "execution time : " << (double)(end-start) / 1000 << "s\n";
-
-  return 0;
-}
