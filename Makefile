@@ -3,7 +3,7 @@ CFLAGS = -W -Wall
 TARGET = nemo.exe
 OBJECTS = main.o nemo.o clearScreen.o
 
-all: $(TARGET)
+# all: $(TARGET)
 
 $(TARGET) : $(OBJECTS)
 	$(CXX) -o $(TARGET) $(OBJECTS)
