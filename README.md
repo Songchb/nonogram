@@ -5,8 +5,11 @@ c++ Nonogram Auto-solver using both brute-force and heuristic
     make
 ## Usage
 with input file
+
     ./nemo [inputfile] [options]
+
 with standard input
+
     ./nemo [options]
 
 ## Input
@@ -15,21 +18,24 @@ it doesn't need to type ".txt".
 just file name is enough.
 
 line 1:
+
     [row_size] [column_size]
+
 line 2 ~ : at each line
+
     [parameters seperated by space]
 
 ## Option
 It it possible to enter multiple options at once with space.
 
 * -np, --no-parameters
-- with this option, the result of print has no parameters.
+  - with this option, the result of print has no parameters.
 
 * -g, --grid
-- with this oprion, the result has grid.
+  - with this oprion, the result has grid.
 
 * -bf, --brute-force
-- solver runs using only brute-force.
+  - solver runs using only brute-force.
 
 ## Implementing Steps of Nonogram Solver
 ---------------------------------------
