@@ -1,5 +1,46 @@
-# Implementing Steps of Nonogram Solver
+# Nonogram Solver
 =============
+c++ Nonogram Auto-solver using both brute-force and heuristic
+
+## Build
+---------------------------------------
+make
+
+## Usage
+---------------------------------------
+with input file
+<pre><code>
+./nemo [inputfile] [options]
+</code></pre>
+
+with standard input
+<pre><code>
+./nemo [options]
+</code></pre>
+
+## Input
+---------------------------------------
+if the file is \*.txt, doesn't need to type .txt, just file name is enough.
+
+line 1: [row_size] [column_size]
+line 2 ~ :
+  at each line [parameters seperated by space]
+
+## Option
+---------------------------------------
+It it possible to enter multiple options at once with space.
+
+* -np, --no-parameters
+with this option, the result of print has no parameters.
+
+* -g, --grid
+with this oprion, the result has grid.
+
+* -bf, --brute-force
+solver runs using only brute-force.
+
+## Implementing Steps of Nonogram Solver
+---------------------------------------
 * nemo2
   - emplemented on the Mac
   - Brute Force (worked fine)
