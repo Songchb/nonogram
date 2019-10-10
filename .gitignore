@@ -1,4 +1,5 @@
-# git rm --chached clearScreen.o
-# git rm --chached main.o
-# git rm --chached nemo.o
-# git rm --chached nemo.exe
+# no .o files
+*.o
+
+# no execution file
+*.exe
