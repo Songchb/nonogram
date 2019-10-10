@@ -223,9 +223,9 @@ vector<int> Nemo::rules2(vector<int> rowcolInfo, vector<int> line, bool backward
       // 결과값도 reverse 해준다
       reverse(result.begin(), result.end());
 
-      return result;
-    }
-  }
+    reverse(result.begin(), result.end());
+    result = rules2_backNforth(tempRowCol, result);
+    reverse(result.begin(), result.end());
 
 vector<int> Nemo::rules2_backNforth(vector<int> rowcolInfo, vector<int> line) {
     int start = -1; // block이 시작하는 위치
@@ -240,11 +240,24 @@ vector<int> Nemo::rules2_backNforth(vector<int> rowcolInfo, vector<int> line) {
         start = i; // 블록이 어디서부터 시작하는지 알아야 블록 수만큼 정확히 칠할 수 있다
       }
 
-      //    ↓
-      // 5 ⬜⬜⬛⬛⬜⬜⬜⬜⬜⬜
-      else if(result[i] == 0 && blank == -1 && start == -1) { // blank가 처음 나오면 그 위치를 저장
-        blank = i;
-      }
+vector<int> Nemo::rules2_backNforth(vector<int> rowcolInfo, vector<int> line) {
+  int start = -1; // block이 시작하는 위치
+  int blank = -1; // blank가 시작하는 위치
+  int blockCount = 1;   // 첫번째 블록
+  vector<int> result = line;
+
+  for(int i = 0; i < result.size(); ++i) {
+    // cout << "i : " << i << ", ";
+    // if(result[i] == 1)        wprintf(L"■");
+    // else if(result[i] == -1)  wprintf(L"▨");
+    // else                      wprintf(L"□");
+    // cout << ", start : " << start << ", blank : " << blank << ", size : " << result.size() << endl;
+
+    //    ↓
+    // 5 ⬛⬛⬛⬛⬜⬜⬜⬜⬜⬜
+    if(result[i] == 1 && start == -1) {
+      start = i; // 블록이 어디서부터 시작하는지 알아야 블록 수만큼 정확히 칠할 수 있다
+    }
 
       //           ↓
       // 5 ⬛⬛⬛⬛⬜⬜⬜⬜⬜⬜ → ⬛⬛⬛⬛⬛📕⬜⬜⬜
@@ -259,7 +272,20 @@ vector<int> Nemo::rules2_backNforth(vector<int> rowcolInfo, vector<int> line) {
         blank = -1;
         blockCount++;
 
+    //           ↓
+    // 5 ⬛⬛⬛⬛⬜⬜⬜⬜⬜⬜ → ⬛⬛⬛⬛⬛✉⬜⬜⬜
+    else if(result[i] == 0 && blank == -1 && start != -1) { // 이전에 block들이 나왔었고
+      for(int j = 0; j < rowcolInfo[blockCount] - (i - start); ++j)
+        result[i + j] = 1;
+      if(start + rowcolInfo[blockCount] < result.size()) { // 마감처리
+        result[start + rowcolInfo[blockCount]] = -1;
+        i = start + rowcolInfo[blockCount];
       }
+      start = -1;
+      blank = -1;
+      blockCount++;
+
+    }
 /*
       //  (1)      ↓
       // 5 ⬜⬜⬛⬛⬜⬜⬜⬜⬜⬜ → ⬜⬜⬛⬛⬛⬜⬜⬜⬜⬜
@@ -296,10 +322,22 @@ vector<int> Nemo::rules2_backNforth(vector<int> rowcolInfo, vector<int> line) {
       //  (13)
       // 3 6 4 ⬜⬜⬜⬜📕⬜⬜⬜⬜⬜📕⬜⬜⬜⬛⬜⬜📕⬜⬜⬜⬜⬜⬜⬜
 */
-      else if(result[i] == 0 && blank != -1 && start != -1) {
-        // 불확정 칸이 param 보다 많으면 start의 블록이 param이 아닐 수도 있다 (9)
-        if(rowcolInfo[0] != blockCount && start - 1 - blank >= rowcolInfo[blockCount]) {
-          // cout << ", start : " << start << ", blank : " << blank << ", blockCount : " << blockCount << ", rowcolInfo[blockCount] : " << rowcolInfo[blockCount] << endl;
+    else if(result[i] == 0 && blank != -1 && start != -1) {
+      // 불확정 칸이 param 보다 많으면 start의 블록이 param이 아닐 수도 있다 (9)
+      if(rowcolInfo[0] != blockCount && start - 1 - blank >= rowcolInfo[blockCount]) {
+        // cout << ", start : " << start << ", blank : " << blank << ", blockCount : " << blockCount << ", rowcolInfo[blockCount] : " << rowcolInfo[blockCount] << endl;
+
+        // 이미 센 start 블록이 param보다 많다면 start 블록이 param이 아닌 것이 확실하다 (10)
+        // 불확정 칸 안에 param을 넣을 수 있는 경우의 수 중에 겹쳐지는 곳은 확정블록이 된다
+        if(i - start > rowcolInfo[blockCount]) {
+          for(int j = start - 1 - rowcolInfo[blockCount]; j < blank + rowcolInfo[blockCount]; ++j) {
+            result[j] = 1;
+
+            // for(int i=1; i<=rowcolInfo[0]; ++i)
+            //   cout << rowcolInfo[i]<<" ";
+            // cout << ": " << rowcolInfo[blockCount] << " | ";
+            // cout << "filled at " << j << ", blank : " << blank << ", start : " << start << ", i : " << i << endl;
+          }
 
           // 이미 센 start 블록이 param보다 많다면 start 블록이 param이 아닌 것이 확실하다 (10)
           // 불확정 칸 안에 param을 넣을 수 있는 경우의 수 중에 겹쳐지는 곳은 확정블록이 된다
@@ -315,34 +353,36 @@ vector<int> Nemo::rules2_backNforth(vector<int> rowcolInfo, vector<int> line) {
                 result[blank - 1] = -1;
               blank = -1;
             }
-            blockCount++;
+            blank = -1;
           }
-          break;
-        }
-
-        // 블록 수와 param이 같으면 확정빈칸 처리
-        if(i - start == rowcolInfo[blockCount]) {
-          for(int j = blank; j < start; ++j)
-            result[j] = -1;
-          result[i] = -1;
-          blank = -1;
-          start = -1;
           blockCount++;
-          continue;
         }
+        break;
+      }
 
-        int rightFill = i;
-        int leftFill = start - 1;
-        // i 바로 전부터 하나씩 왼쪽으로 rowcolInfo[blockCount]만큼
-        for(int j = 1; j <= rowcolInfo[blockCount]; ++j) {
-          if(i - j < blank) { // blank보다 더 전으로 넘어와버리면 반대편(블록의 오른쪽)에 색칠
-            result[rightFill++] = 1;
-          }
-          else if(j == rowcolInfo[blockCount]) { // rowcolInfo[blockCount]만큼 다 왔다면 (2)의 경우로 왼쪽은 확정빈칸이다
-            for(int r = blank; r < i - j; ++r)
-              result[r] = -1;
-          }
+      // 블록 수와 param이 같으면 확정빈칸 처리
+      if(i - start == rowcolInfo[blockCount]) {
+        for(int j = blank; j < start; ++j)
+          result[j] = -1;
+        result[i] = -1;
+        blank = -1;
+        start = -1;
+        blockCount++;
+        continue;
+      }
+
+      int rightFill = i;
+      int leftFill = start - 1;
+      // i 바로 전부터 하나씩 왼쪽으로 rowcolInfo[blockCount]만큼
+      for(int j = 1; j <= rowcolInfo[blockCount]; ++j) {
+        if(i - j < blank) { // blank보다 더 전으로 넘어와버리면 반대편(블록의 오른쪽)에 색칠
+          result[rightFill++] = 1;
         }
+        else if(j == rowcolInfo[blockCount]) { // rowcolInfo[blockCount]만큼 다 왔다면 (2)의 경우로 왼쪽은 확정빈칸이다
+          for(int r = blank; r < i - j; ++r)
+            result[r] = -1;
+        }
+      }
 
         int mergeStart = start;
         // int mergeEnd = start;
@@ -357,6 +397,8 @@ vector<int> Nemo::rules2_backNforth(vector<int> rowcolInfo, vector<int> line) {
             }
             break;
           }
+          break;
+        }
 
           /*
           // 4 2 📕⬜⬜⬜⬜⬛⬜⬜⬛⬜ // 뒤까지 확인? 뒤 블록을 병합해서 2가 자리가 충분한지?
@@ -382,20 +424,20 @@ vector<int> Nemo::rules2_backNforth(vector<int> rowcolInfo, vector<int> line) {
               mergeStart = i + j;
           }
 /*
-          cout << "start + j : " << start + j << ", result[start + j] : " << result[start + j] <<  ", mergeStart : " << mergeStart << ", mergeEnd : " << mergeEnd << endl;
-          if(mergeStart != -1 && result[start + j] == 0) {// merge 초기화
-            nextBlockCnt = 0; // nextBlock counting 비활성화
-            mergeStart = -1;
+        cout << "start + j : " << start + j << ", result[start + j] : " << result[start + j] <<  ", mergeStart : " << mergeStart << ", mergeEnd : " << mergeEnd << endl;
+        if(mergeStart != -1 && result[start + j] == 0) {// merge 초기화
+          nextBlockCnt = 0; // nextBlock counting 비활성화
+          mergeStart = -1;
+        }
+        else if(mergeStart != start && result[start + j] == 1) {// start 블록 뒤에 새로운 블록이 나왔으며 그 위치를 표시한다
+          if(nextBlockCnt != 0 || mergeEnd == -1) { // i 다음으로 나오는 merge 블록을 센다
+            nextBlockCnt++;
           }
-          else if(mergeStart != start && result[start + j] == 1) {// start 블록 뒤에 새로운 블록이 나왔으며 그 위치를 표시한다
-            if(nextBlockCnt != 0 || mergeEnd == -1) { // i 다음으로 나오는 merge 블록을 센다
-              nextBlockCnt++;
-            }
-            if(mergeStart == -1) {
-              mergeStart = start + j;
-            }
-            mergeEnd = start + j;
+          if(mergeStart == -1) {
+            mergeStart = start + j;
           }
+          mergeEnd = start + j;
+        }
 */
           /*
           // 6 2 5 ⬜⬜⬜⬜⬜⬛⬜⬛⬛⬛⬛⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜
@@ -422,41 +464,49 @@ vector<int> Nemo::rules2_backNforth(vector<int> rowcolInfo, vector<int> line) {
           //  → ⬛⬛⬜⬛⬛⬛⬜⬛⬛⬜
           // 다음 위치에 블록이 있고 그 블록과 병합하지 못하는 거리에 닿아있다
 
-          if(j == rowcolInfo[blockCount] - (i - start) - 1 && i + j + 1 < result.size() && result[i + j + 1] == 1) {
-            // cout << "blank : " << blank << ", start : "<< start << ", i : " << i << ", j : " << j << ", mergeStart : " << mergeStart << endl;
+        // 끝의 다음 자리에 색칠되어 있으면 병합할 수 없으며 반대편(블록의 왼쪽)에 색칠한다
+        // merge를 이용해 위치를 파악한다
+        //               →                        ↓ ↓ ↓
+        // 6 4 ✉✉⬜⬜⬜⬛⬜⬛⬜⬛⬛⬛⬜⬜⬜ → ✉✉⬛⬛⬛⬛⬜⬛⬜⬛⬛⬛⬜⬜⬜
+        //        →                  ↓
+        // 6 2 ⬜⬛⬜⬛⬛⬛⬜⬛⬛⬜ → ⬛⬛⬜⬛⬛⬛⬜⬛⬛⬜
+        // 다음 위치에 블록이 있고 그 블록과 병합하지 못하는 거리에 닿아있다
+
+        if(j == rowcolInfo[blockCount] - (i - start) - 1 && i + j + 1 < result.size() && result[i + j + 1] == 1) {
+          // cout << "blank : " << blank << ", start : "<< start << ", i : " << i << ", j : " << j << ", mergeStart : " << mergeStart << endl;
+          result[leftFill--] = 1;
+          for(int r = mergeStart; mergeStart != start && mergeStart != -1 && r <= i + j; ++r)
             result[leftFill--] = 1;
-            for(int r = mergeStart; mergeStart != start && mergeStart != -1 && r <= i + j; ++r)
-              result[leftFill--] = 1;
-          }
+        }
 
           // 끝의 다음 자리에 확정빈칸이 있으므로 merge하고
           if(j == rowcolInfo[blockCount] - (i - start) - 1 && i + j + 1 < result.size() && result[i + j + 1] == -1) {
 
-          }
         }
+      }
 
-        // 모든 처리가 끝난 후 블록이 param과 일치하면 마감처리
-        int magam = -1;
-        for(int j = start; j < rowcolInfo[blockCount]; ++j) {
-          if(result[j] != 1) {                                // i부터 가면서 색칠되지 않은 블록을 만났을 때
-            if(j - leftFill - 1 == rowcolInfo[blockCount]) {  // leftFill부터 세서 param과 같다면 마감 처리
-              result[j] = -1;
-              magam = j;
-              for(int r = leftFill - 1; r > blank; --r)
-                if(r >= 0)
-                  result[r] = -1;
-            }
-            j = rowcolInfo[blockCount];
+      // 모든 처리가 끝난 후 블록이 param과 일치하면 마감처리
+      int magam = -1;
+      for(int j = start; j < rowcolInfo[blockCount]; ++j) {
+        if(result[j] != 1) {                                // i부터 가면서 색칠되지 않은 블록을 만났을 때
+          if(j - leftFill - 1 == rowcolInfo[blockCount]) {  // leftFill부터 세서 param과 같다면 마감 처리
+            result[j] = -1;
+            magam = j;
+            for(int r = leftFill - 1; r > blank; --r)
+              if(r >= 0)
+                result[r] = -1;
           }
+          j = rowcolInfo[blockCount];
         }
-        if(magam != -1) {
-          i = magam + 1;
-          blockCount++;
-          blank = -1;
-          start = -1;
-        }
-        else
-          break;
+      }
+      if(magam != -1) {
+        i = magam + 1;
+        blockCount++;
+        blank = -1;
+        start = -1;
+      }
+      else
+        break;
 
         /*
         // 6 1 ⬜⬛⬜⬛⬛⬛⬜⬜⬛⬜ → ⬜⬛⬛⬛⬛⬛⬜⬜⬛⬜
@@ -553,22 +603,50 @@ vector<int> Nemo::rules2_backNforth(vector<int> rowcolInfo, vector<int> line) {
 
       // 5 ⬜⬜📕⬜⬛⬜⬜⬜⬜⬜ → x
 
-      else if(result[i] == -1 && blank != -1 && start == -1) {        if(i - blank < rowcolInfo[blockCount]) {
-          for(int j = blank; j < i; ++j)
-            result[j] = -1;
-          blank = -1;
-        } else break;
+    //  2 2 3 ⬜⬜⬜⬜⬜⬜⬜⬛⬛✉⬜⬜⬜⬜⬜ → x
+    else if(result[i] == -1 && start != -1 && blank != -1) {
+      /* 확정빈칸이 나오면 지금까지 센 블록들 판별하고 안맞으면 칠하기 */
+      /* i - blank 빈칸과 start block이 꽤 넓다면 blockCount의 param이 아닐 수도 있다 */
+      if(rowcolInfo[0] == blockCount || i - blank < rowcolInfo[blockCount] + rowcolInfo[blockCount + 1] + 1) {
+        // cout << "i : " << i << ", blank : " << blank << ", blockCount : " << blockCount << ", rowInfo[blockCount] : " << rowcolInfo[blockCount] << ", rowInfo[blockCount + 1] : "<< rowcolInfo[blockCount+1]<< endl;
+        for(int j = 1; j <= rowcolInfo[blockCount]; ++j)
+          result[i - j] = 1;
+        if(i - rowcolInfo[blockCount] - 1 >= 0)
+          result[i - rowcolInfo[blockCount] - 1] = -1;
+        start = -1;
+        blank = -1;
+        blockCount++; // 블록이 다 칠해졌다면 타겟을 다음 블록을 변경한다
       }
       //     ↓
       //  5 📕📕⬛⬛⬜⬜⬜⬜⬜⬜
 
-      else;
+    //             ↓
+    // 4 ⬜⬜⬜⬜⬜✉⬜⬜⬜⬜ → x
+    // 4 ⬜⬜⬜⬜⬜✉⬜✉⬜⬜ → x
+    //       ↓
+    // 4 ⬜⬜✉⬜⬜⬜⬜⬜⬜⬜ → ✉✉✉⬜⬜⬜⬜⬜⬜⬜
+    // 4 ⬜⬜✉⬜✉⬜⬜⬜⬜⬜ → ✉✉✉⬜⬜⬜⬜⬜⬜⬜
+    //             ↓
+    // 2 ⬜⬜⬜⬜⬜✉⬜⬜⬜⬜ → x
 
+    // 5 ⬜⬜✉⬜⬛⬜⬜⬜⬜⬜ → x
 
+    else if(result[i] == -1 && blank != -1 && start == -1) {        if(i - blank < rowcolInfo[blockCount]) {
+        for(int j = blank; j < i; ++j)
+          result[j] = -1;
+        blank = -1;
+      } else break;
     }
+    //     ↓
+    //  5 ✉✉⬛⬛⬜⬜⬜⬜⬜⬜
 
-    return result;
+    else;
+
+
   }
+
+  return result;
+}
 
 /* 위치를 통해, 순서를 통해 확정할 수 있는 블록은 그 앞뒤로 빈칸 확정? */
 vector<int> Nemo::rules3(vector<int> rowcolInfo, vector<int> line) {
@@ -586,7 +664,11 @@ vector<int> Nemo::rules3(vector<int> rowcolInfo, vector<int> line) {
       } else if(result[i] != 1) { // 나오던 블록이 끝나면 그 다음에 나올 새로운 블록을 푸시할 준비
         end = true;
       }
+      countedBlocks[countedBlocks.size() - 1].second++; // pair < position, count >
+    } else if(result[i] != 1) { // 나오던 블록이 끝나면 그 다음에 나올 새로운 블록을 푸시할 준비
+      end = true;
     }
+  }
 
     /*
      * 버그 발견
@@ -624,29 +706,30 @@ vector<int> Nemo::rules3(vector<int> rowcolInfo, vector<int> line) {
         // }
       }
     }
-    /*
-    sort(countedBlocks.begin(), countedBlocks.end(), sortByBlockCount); // 블록 수로 내림차순
-    sort(paramBlocks.begin(), paramBlocks.end(), greater<int>() ); // 파라미터 내림차순
-
-    int bigBlock = 0;
-    for(int i=0; i<paramBlocks.size(); ++i) {
-      // 내림차순으로 정렬된 블록 수를 돌면서
-      // 실제로 블록의 수를 count해서 내림차순 정렬한 countedBlocks를 대조해보면서
-      // 같은 블록이 있으면 확정짓고 앞뒤로 빈칸처리
-      if(paramBlocks[i] == countedBlocks[bigBlock].second) {
-        // 일치! 앞뒤 빈칸 처리
-        if(countedBlocks[bigBlock].first - 1 >= 0)
-          result[countedBlocks[bigBlock].first - 1] = -1;
-        if(countedBlocks[bigBlock].first + paramBlocks[i] < line.size())
-          result[countedBlocks[bigBlock].first + paramBlocks[i]] = -1;
-        // 다음으로 넘어감
-        bigBlock++;
-      } else break;
-
-    }*/
-
-    return result;
   }
+  /*
+  sort(countedBlocks.begin(), countedBlocks.end(), sortByBlockCount); // 블록 수로 내림차순
+  sort(paramBlocks.begin(), paramBlocks.end(), greater<int>() ); // 파라미터 내림차순
+
+  int bigBlock = 0;
+  for(int i=0; i<paramBlocks.size(); ++i) {
+    // 내림차순으로 정렬된 블록 수를 돌면서
+    // 실제로 블록의 수를 count해서 내림차순 정렬한 countedBlocks를 대조해보면서
+    // 같은 블록이 있으면 확정짓고 앞뒤로 빈칸처리
+    if(paramBlocks[i] == countedBlocks[bigBlock].second) {
+      // 일치! 앞뒤 빈칸 처리
+      if(countedBlocks[bigBlock].first - 1 >= 0)
+        result[countedBlocks[bigBlock].first - 1] = -1;
+      if(countedBlocks[bigBlock].first + paramBlocks[i] < line.size())
+        result[countedBlocks[bigBlock].first + paramBlocks[i]] = -1;
+      // 다음으로 넘어감
+      bigBlock++;
+    } else break;
+
+  }*/
+
+  return result;
+}
 
 vector<int> Nemo::rules4(vector<int> rowcolInfo, vector<int> line) {
     vector<int> result = line;
@@ -663,11 +746,11 @@ vector<int> Nemo::rules4(vector<int> rowcolInfo, vector<int> line) {
     // line이 하나 이상의 확정빈칸으로 분리되어 있어야 한다
     // ★ 분리된 empty space 중 min(param)보다 작은 것이 있다면 확정빈칸처리 한다
 
-    // (1) 중간에 확정블록이 있으면 이를 통해 param을 유추한다,
-    // (2) empty space의 수 param의 분포를 통해 각 empty space에 어떤 param이 들어갈 수 있는지 유추한다
-    // (1)과 (2)를 통해 유추가 된 <param, empty space> pair가 있다면 겹치는 곳을 확정블록처리
+  // (1) 중간에 확정블록이 있으면 이를 통해 param을 유추한다,
+  // (2) empty space의 수 param의 분포를 통해 각 empty space에 어떤 param이 들어갈 수 있는지 유추한다
+  // (1)과 (2)를 통해 유추가 된 <param, empty space> pair가 있다면 겹치는 곳을 확정블록처리
 
-    // (1) (2)는 어렵다고 판단
+  // (1) (2)는 어렵다고 판단
 
     // 오른쪽으로 가면서 확정빈칸으로 둘러쌓인 확정블록을 param과 비교해가며
     // 해당 param을 찾았다고 마킹한다
@@ -700,8 +783,8 @@ vector<int> Nemo::rules4(vector<int> rowcolInfo, vector<int> line) {
     if(start != 0 && end - start != 1) // 끝에 도달했을 경우
       blanks.push_back(pair<int, int>(start, end));
 
-    // blanks를 sort하는데 분리된 구획들이 큰 것부터 작은 순으로
-    sort(blanks.begin(), blanks.end(), sortByBlockCount);
+  // blanks를 sort하는데 분리된 구획들이 큰 것부터 작은 순으로
+  sort(blanks.begin(), blanks.end(), sortByBlockCount);
 
     for(int i = 0; i < blanks.size(); ++i) {
       // cout << blanks[i].first << " " << blanks[i].second;
@@ -711,10 +794,9 @@ vector<int> Nemo::rules4(vector<int> rowcolInfo, vector<int> line) {
         }
         // cout << " -> consider blanks";
       }
-      // cout << endl;
+      // cout << " -> consider blanks";
     }
-
-    return result;
+    // cout << endl;
   }
 
 void Nemo::bruteforce(vector<vector<int>> candiBoard, int step) {
@@ -793,6 +875,11 @@ void Nemo::generateCombination(int step, int elementCount, vector<int> curVector
       nextRow2[position] = -1;
       generateCombination(step, elementCount, nextRow2, position + 1, false);
     }
+
+    // put a space at current position
+    vector<int> nextRow2 = curVector;
+    nextRow2[position] = 0;
+    generateCombination(step, elementCount, nextRow2, position + 1, false);
   }
 }
 
