@@ -10,6 +10,7 @@ int ROW_SIZE, COL_SIZE; // length of row & column
 bool GRID = false;
 bool PARAM = true;
 bool BRUTEFORCE = false;
+bool CLEAR = true;
 vector<vector<int> > row; // parameters as global variable
 vector<vector<int> > col;
 wchar_t direc[] = L"→↓←↑";
@@ -35,6 +36,8 @@ int main(int argc, char* argv[]) {
       GRID = true;
     else if(strcmp(argv[i], "-bf") == 0 || strcmp(argv[i], "--brute-force") == 0)
       BRUTEFORCE = true;
+    else if(strcmp(argv[i], "-nc") == 0 || strcmp(argv[i], "--no-clear") == 0)
+      CLEAR = false;
     else
       cout << "wrong option format : " << argv[i] << "\n";
   }
@@ -45,7 +48,7 @@ int main(int argc, char* argv[]) {
 
   start = clock();
   Nemo nemo;
-  // nemo.printMap(nemo.map, COL_SIZE);
+  // nemo.printBoard(nemo.board, COL_SIZE);
 
 /*
   int list1[30] = {
@@ -158,11 +161,10 @@ int main(int argc, char* argv[]) {
   nemo.printLine(temp);
 
 */
-  if(BRUTEFORCE)  nemo.bruteforce(nemo.map, 0, true);
-  else            nemo.run();
+  nemo.run();
   // cout << "\n";
   end = clock();
-  nemo.printMap(nemo.map, COL_SIZE);
+  nemo.printBoard(nemo.board, COL_SIZE);
 
   cout << "execution time : " << (double)(end-start) / 1000 << "s\n";
 
