@@ -86,10 +86,16 @@ It it possible to enter multiple options at once with space.
   - BRUTE FORCE 할 수 있게 만들기
   - 확정된 빈칸 사이의 param들만 따로 빼서 initialFill처럼 중복된 자리 다시 찾기
 
-* TODO  
-  - 이미 색칠된 맵에 대해서 combination pruning 진행
-  + 생성된 조합이 현재 맵의 색칠된 곳과 맞지 않으면 해당 조합은 삭제
-  - checkCol, checkRow 함수 만들기
+* nemo10
+  - Seperated files, *make* with Makefile,
+  - 이미 색칠된 보드에 대해서 combination pruning 진행
+    - 생성된 조합이 현재 보드의 색칠된 곳과 맞지 않으면 해당 조합은 삭제
+
+* TODO
+  - bug need to be fixed
+    - input/502 (http://nemonemologic.com/play_logic.php?quid=8467)
+  - while brute-force, print more clearly & effectively using gotoxy
+
 ---------------------------------------
 * pruning rules
   + 모든 검은 칸, 모든 빈칸이 확정된 예시의 처리
