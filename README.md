@@ -242,4 +242,4 @@ mgEnd       1 2 3 4 4 4 8 9 10 10 10 13 14 15 15
   1 2 8 5 ⬜⬛⬜⬜⬜⬜📕⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜📕⬜⬜⬜⬜⬜⬜⬜ -->
 
 ## Reference
-    <https://ko.wikipedia.org/wiki/%EB%85%B8%EB%85%B8%EA%B7%B8%EB%9E%A8>
+[Korean Wiki Nonogram](https://ko.wikipedia.org/wiki/%EB%85%B8%EB%85%B8%EA%B7%B8%EB%9E%A8)
