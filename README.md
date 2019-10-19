@@ -1,6 +1,9 @@
 # Nonogram Solver
 c++ Nonogram Auto-solver using both brute-force and heuristic
 
+<img src="/result/input_402.jpg" width="50%" height="50%" alt="Duck"></img>
+<img src="/result/input_503.jpg" width="50%" height="50%" alt="PearlEarringGirl"></img>
+
 ## Build
     make
 ## Usage
