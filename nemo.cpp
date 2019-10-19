@@ -240,25 +240,6 @@ vector<int> Nemo::rules2_backNforth(vector<int> rowcolInfo, vector<int> line) {
         start = i; // 블록이 어디서부터 시작하는지 알아야 블록 수만큼 정확히 칠할 수 있다
       }
 
-vector<int> Nemo::rules2_backNforth(vector<int> rowcolInfo, vector<int> line) {
-  int start = -1; // block이 시작하는 위치
-  int blank = -1; // blank가 시작하는 위치
-  int blockCount = 1;   // 첫번째 블록
-  vector<int> result = line;
-
-  for(int i = 0; i < result.size(); ++i) {
-    // cout << "i : " << i << ", ";
-    // if(result[i] == 1)        wprintf(L"■");
-    // else if(result[i] == -1)  wprintf(L"▨");
-    // else                      wprintf(L"□");
-    // cout << ", start : " << start << ", blank : " << blank << ", size : " << result.size() << endl;
-
-    //    ↓
-    // 5 ⬛⬛⬛⬛⬜⬜⬜⬜⬜⬜
-    if(result[i] == 1 && start == -1) {
-      start = i; // 블록이 어디서부터 시작하는지 알아야 블록 수만큼 정확히 칠할 수 있다
-    }
-
       //           ↓
       // 5 ⬛⬛⬛⬛⬜⬜⬜⬜⬜⬜ → ⬛⬛⬛⬛⬛📕⬜⬜⬜
       else if(result[i] == 0 && blank == -1 && start != -1) { // 이전에 block들이 나왔었고
