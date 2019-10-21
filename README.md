@@ -6,6 +6,7 @@ c++ Nonogram Auto-solver using both brute-force and heuristicpng
 
 ## Build
     make
+    
 ## Usage
 with input file
 
@@ -14,12 +15,6 @@ with input file
 with standard input
 
     ./nemo [options]
-
-ex)
-
-    ./nemo 301.txt -bf
-    ./nemo 301 -g
-    ./nemo -np
 
 ## Input
 if the file format is "\*.txt",
