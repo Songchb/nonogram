@@ -15,6 +15,12 @@ with standard input
 
     ./nemo [options]
 
+ex)
+
+    ./nemo 301.txt -bf
+    ./nemo 301 -g
+    ./nemo -np
+
 ## Input
 if the file format is "\*.txt",
 it doesn't need to type ".txt".
